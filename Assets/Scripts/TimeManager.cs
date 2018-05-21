@@ -11,8 +11,10 @@ public class TimeManager : MonoBehaviour {
     [HideInInspector]
     public int hour = 0, minute = 0;  // hour and minute (in 24h format)
 
-    // Use this for initialization
-    void Start() {
+    public static TimeManager Instance { get; private set; }
+
+    private void Awake() {
+        Instance = this;
     }
 
     // Update is called once per frame

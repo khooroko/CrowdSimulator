@@ -93,7 +93,7 @@ public class Person : MonoBehaviour {
                 }
                 if (isEverythingVisited) {  // if all goals have been visited, randomly pick an exit to leave
                     nextGoal = GameObject.FindGameObjectsWithTag("Exit")[Random.Range(0, GameObject.FindGameObjectsWithTag("Exit").Length)].transform;
-                } else {    // if not all goals have been visited, find the closest goal (currently may still choose to leave the mall before visiting all desired shops)
+                } else {    // if not all goals have been visited, find the closest unvisited goal (currently may still choose to leave the mall before visiting all desired shops)
                     for (int i = 0; i < goals.Length; i++) {
                         if (!isVisited[i] && Mathf.Abs((goals[i].transform.position - transform.position).magnitude) < Mathf.Abs((nextGoal.transform.position - transform.position).magnitude)) {
                             nextGoal = goals[i].transform;
@@ -106,7 +106,7 @@ public class Person : MonoBehaviour {
                 text.text = nextGoal.name;
             }
         } else if (other.tag == "Lift" && currentFloor != targetFloor) {    // if touching a lift while wanting to go to another floor
-            agent.Warp(other.GetComponent<Lift>().targets[0].position);
+            agent.Warp(ObjectManager.Instance.lifts[targetFloor - 1].transform.position);
             agent.enabled = false;
             rb.transform.Translate(-7, 0, 0, Space.World);
             agent.enabled = true;
