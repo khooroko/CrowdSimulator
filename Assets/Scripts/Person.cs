@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -16,16 +17,23 @@ public class Person : MonoBehaviour {
     private NavMeshAgent agent;
     private TextMesh text;
     private Rigidbody rb;
+    private int originalAvoidancePrio;
     [HideInInspector]
     public int currentFloor, targetFloor;   // the floor that the person is currently on and the floor that the person wants to go to, respectively
     private List<GameObject> currentHeatMaps = new List<GameObject>();  // every person can stand on up to 4 squares at once
+    private Stack<Transform> tempGoals = new Stack<Transform>();
+
+    private void Awake() {
+        agent = GetComponent<NavMeshAgent>();
+    }
 
     public void Start() {
-        agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
+        originalAvoidancePrio = Random.Range(0, 98);
+        agent.avoidancePriority = originalAvoidancePrio;
         agent.speed = speed;
-        agent.angularSpeed = speed * 10;
-        agent.acceleration = speed * 5;
+        agent.angularSpeed = 900;
+        agent.acceleration = speed * 2;
         text = GetComponentInChildren<TextMesh>();
         spawnTime = Time.time;
         isVisited = new bool[goals.Length];
@@ -74,6 +82,24 @@ public class Person : MonoBehaviour {
         }
         targetRadius = shouldExpand ? 1.5f : 0.5f;
         agent.radius = Mathf.Lerp(agent.radius, targetRadius, Time.deltaTime);  // smooth change in radius (a sudden change will push or pull people unnaturally)
+
+        if (agent.enabled && agent.pathStatus != NavMeshPathStatus.PathComplete) {  // if path is incomplete
+            Debug.Log("incomplete");
+        }
+
+        if (agent.enabled && agent.isPathStale) {
+            Debug.Log("stale path");
+        }
+
+        if (agent.enabled && agent.isStopped) {
+            Debug.Log("agent stopped");
+        }
+
+        if (!Physics.Raycast(transform.position, nextGoal.position - transform.position, 10, LayerMask.GetMask("Obstacle"))) {
+            agent.avoidancePriority = 99;
+        } else {
+            agent.avoidancePriority = originalAvoidancePrio;
+        }
     }
 
     void OnTriggerEnter(Collider other) {
@@ -108,6 +134,9 @@ public class Person : MonoBehaviour {
                 }
 
                 targetFloor = Floor.GetFloor(nextGoal);
+                //if (targetFloor != currentFloor) {
+                    //push lift/escalator/stairs onto tempGoals stack
+                //}
                 text.text = nextGoal.name;
             }
         } else if (other.tag == "Lift" && currentFloor != targetFloor) {    // if touching a lift while wanting to go to another floor
@@ -115,16 +144,29 @@ public class Person : MonoBehaviour {
             agent.enabled = false;
             rb.transform.Translate(-7, 0, 0, Space.World);
             agent.enabled = true;
+            // pop tempGoals stack
             agent.destination = nextGoal.position;
             currentFloor = Floor.GetFloor(transform);
         } else if (other.tag == "HeatMap") {
             currentHeatMaps.Add(other.gameObject);
+            if (other.GetComponent<HeatMapCell>().density >= 1) {
+                GameObjectUtility.SetNavMeshArea(other.gameObject, NavMesh.GetAreaFromName("Very crowded"));
+            } else if (other.GetComponent<HeatMapCell>().density >= 0.5) {
+                GameObjectUtility.SetNavMeshArea(other.gameObject, NavMesh.GetAreaFromName("Crowded"));
+            }
         }
-
+        //if (agent.enabled) {
+        //    agent.transform.LookAt(agent.steeringTarget);
+        //}
     }
 
     private void OnTriggerExit(Collider other) {
         if (other.tag == "HeatMap") {
+            if (other.GetComponent<HeatMapCell>().density < 0.5) {
+                GameObjectUtility.SetNavMeshArea(other.gameObject, NavMesh.GetAreaFromName("Walkable"));
+            } else if (other.GetComponent<HeatMapCell>().density < 1) {
+                GameObjectUtility.SetNavMeshArea(other.gameObject, NavMesh.GetAreaFromName("Crowded"));
+            }
             currentHeatMaps.Remove(other.gameObject);
         }
     }

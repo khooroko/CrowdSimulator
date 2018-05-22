@@ -8,6 +8,14 @@ public class Shop : MonoBehaviour {
     public float averageTimeSpent = 3f;
     private TextMesh text;
     private int floor;
+    public ShopType shopType;
+
+    public enum ShopType {
+        FnB,
+        Retail,
+        Services,
+        Other
+    };
 
 	// Use this for initialization
 	void Start () {

@@ -7,6 +7,7 @@ Aims to simulate crowd movements in shopping malls using Unity by adding on to t
 * Crude heatmap cells that change colour based on density
 * Extremely crude lift that just teleports people from one floor to another without any consideration
 * Overhead text over each person to show their current goal
+* Slider to adjust time scale during simulation (going above 2x is unrecommended)
 
 ## To-do
 * Improve lift
