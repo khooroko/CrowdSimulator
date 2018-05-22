@@ -149,9 +149,9 @@ public class Person : MonoBehaviour {
             currentFloor = Floor.GetFloor(transform);
         } else if (other.tag == "HeatMap") {
             currentHeatMaps.Add(other.gameObject);
-            if (other.GetComponent<HeatMapCell>().density >= 1) {
+            if (other.GetComponent<HeatMapCell>().density >= 0.5) {
                 GameObjectUtility.SetNavMeshArea(other.gameObject, NavMesh.GetAreaFromName("Very crowded"));
-            } else if (other.GetComponent<HeatMapCell>().density >= 0.5) {
+            } else if (other.GetComponent<HeatMapCell>().density >= 0.2) {
                 GameObjectUtility.SetNavMeshArea(other.gameObject, NavMesh.GetAreaFromName("Crowded"));
             }
         }
@@ -162,9 +162,9 @@ public class Person : MonoBehaviour {
 
     private void OnTriggerExit(Collider other) {
         if (other.tag == "HeatMap") {
-            if (other.GetComponent<HeatMapCell>().density < 0.5) {
+            if (other.GetComponent<HeatMapCell>().density < 0.2) {
                 GameObjectUtility.SetNavMeshArea(other.gameObject, NavMesh.GetAreaFromName("Walkable"));
-            } else if (other.GetComponent<HeatMapCell>().density < 1) {
+            } else if (other.GetComponent<HeatMapCell>().density < 0.5) {
                 GameObjectUtility.SetNavMeshArea(other.gameObject, NavMesh.GetAreaFromName("Crowded"));
             }
             currentHeatMaps.Remove(other.gameObject);
