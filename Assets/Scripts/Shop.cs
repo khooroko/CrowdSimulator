@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Shop : MonoBehaviour {
 
+    [Tooltip("The average amount of time that people spend in this shop")]
     public float averageTimeSpent = 3f;
     private TextMesh text;
     private int floor;

@@ -56,7 +56,12 @@ public class Person : MonoBehaviour {
         if (shouldExpand) { // if this person is not on a crowded space currently
             Collider[] hits;
             hits = Physics.OverlapSphere(transform.position, 0.5f);   // check if currently in a shop
-            shouldExpand = false;
+            foreach (Collider hit in hits) {
+                if (hit.tag == "Shop") {
+                    shouldExpand = false;
+                    break;
+                }
+            }
             if (shouldExpand) {
                 hits = Physics.OverlapSphere(transform.position, 3f);   // check surroundings for choke points (doors and exits)
                 foreach (Collider hit in hits) {
