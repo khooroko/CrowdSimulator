@@ -9,7 +9,7 @@ public class TimeManager : MonoBehaviour {
     public float speedUp = 10;    //  (best performance ~10)
 
     [HideInInspector]
-    public int hour = 0, minute = 0;  // hour and minute (in 24h format)
+    public int hour = 8, minute = 0;  // hour and minute (in 24h format)
 
     public static TimeManager Instance { get; private set; }
 
