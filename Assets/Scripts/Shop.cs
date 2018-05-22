@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Shop : MonoBehaviour {
 
-    public float averageTimeSpent = 0.5f;
+    public float averageTimeSpent = 3f;
     private TextMesh text;
+    private int floor;
 
 	// Use this for initialization
 	void Start () {
@@ -13,6 +14,7 @@ public class Shop : MonoBehaviour {
         if (text != null) {
             text.text = name;
         }
+        floor = Floor.GetFloor(transform);
 	}
 	
 	// Update is called once per frame

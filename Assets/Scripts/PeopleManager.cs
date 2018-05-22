@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class PeopleManager : MonoBehaviour {
@@ -38,6 +39,7 @@ public class PeopleManager : MonoBehaviour {
             go.GetComponent<MeshRenderer>().material.color = Color.blue;
         }
         personScript.speed = TimeManager.Instance.speedUp * averageWalkingSpeed;
+        personScript.currentFloor = System.Int32.Parse(Regex.Match(exits[entrance].name, @"\d+").Value);    // naming of extis should start with floor number, followed by an alphabet or a string of alphabets
         bool hasEndGoal = Random.Range(0f, 1f) > 0.5f;
         int numGoals = Random.Range(1, 4);
         personScript.goals = new GameObject[numGoals];

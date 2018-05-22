@@ -16,8 +16,8 @@ public class Person : MonoBehaviour {
     private NavMeshAgent agent;
     private TextMesh text;
     private Rigidbody rb;
-    private int currentFloor;   // the floor that the person is currently on
-    private int targetFloor = 1;    // the floor that the person wants to go to
+    [HideInInspector]
+    public int currentFloor, targetFloor;   // the floor that the person is currently on and the floor that the person wants to go to, respectively
     private List<GameObject> currentHeatMaps = new List<GameObject>();  // every person can stand on up to 4 squares at once
 
     public void Start() {
@@ -47,8 +47,8 @@ public class Person : MonoBehaviour {
     private void Update() {
         bool shouldExpand = true;
         float targetRadius;
-        foreach(GameObject heatmap in currentHeatMaps) {
-            if (heatmap.GetComponent<HeatMapCell>().density > 0.4) {
+        foreach(GameObject heatMapCell in currentHeatMaps) {
+            if (heatMapCell.GetComponent<HeatMapCell>().density > 0.4) {
                 shouldExpand = false;
                 break;
             }
@@ -77,7 +77,8 @@ public class Person : MonoBehaviour {
         } else if (other.tag == "Shop") {
             bool isGoalChanged = false;
             for (int i = 0; i < goals.Length; i++) {
-                if (goals[i].Equals(other.transform.parent.gameObject)) {
+                if (goals[i].Equals(other.transform.parent.gameObject) && !isVisited[i]) {
+                    SitInShop(goals[i].gameObject.GetComponent<Shop>().averageTimeSpent);
                     isVisited[i] = true;
                     isGoalChanged = true;
                 }
@@ -101,7 +102,6 @@ public class Person : MonoBehaviour {
                     }
                 }
 
-                agent.destination = nextGoal.position;
                 targetFloor = Floor.GetFloor(nextGoal);
                 text.text = nextGoal.name;
             }
@@ -135,5 +135,16 @@ public class Person : MonoBehaviour {
             Debug.Log("currentHeatMaps null: " + (spawnTime - Time.time));
         }
         Destroy(this.gameObject);
+    }
+
+    public void SitInShop(float timeToSit) {
+        StartCoroutine(SitInShopRoutine(timeToSit));
+    }
+
+    private IEnumerator SitInShopRoutine(float timeToSit) {
+        agent.enabled = false;
+        yield return new WaitForSeconds(timeToSit);
+        agent.enabled = true;
+        agent.destination = nextGoal.position;
     }
 }
